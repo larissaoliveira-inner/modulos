@@ -506,40 +506,36 @@
   }
   .m-closer .note .ico { width: 16px; height: 16px; margin-top: 2px; opacity: 0.9; }
 
-  /* Rodapé de navegação prev/next */
-  .m-footer-nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
-    padding: var(--space-6) 0 var(--space-10);
+  /* Rodapé de setores */
+  .m-sectors {
+    padding: var(--space-4) 0 var(--space-12);
+    border-top: 1px solid var(--color-divider);
+    margin-top: var(--space-4);
   }
-  .fn-card {
+  .sector-tags {
     display: flex;
-    flex-direction: column;
-    padding: var(--space-5) var(--space-6);
-    border: 1px solid var(--color-border-glass);
-    border-radius: var(--radius-card);
-    background: var(--color-surface);
-    text-decoration: none;
-    color: inherit;
-    box-shadow: var(--shadow-card);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
-  .fn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-elevated); }
-  .fn-card.next { text-align: right; align-items: flex-end; }
-  .fn-card .fn-label {
-    font-size: var(--font-size-caption);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-text-muted);
-    font-weight: var(--font-weight-subheadline);
+  .sector-tag {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    color: color-mix(in srgb, var(--accent) 78%, #000);
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+    font-size: var(--font-size-footnote);
+    font-weight: var(--font-weight-subheadline);
+    white-space: nowrap;
   }
-  .fn-card .fn-label .ico { width: 12px; height: 12px; }
-  .fn-card .fn-title { font-size: 17px; font-weight: var(--font-weight-subheadline); margin-top: 4px; }
-  .fn-card.empty { visibility: hidden; }
+  .sector-tag::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
 
   /* Responsivo */
   @media (max-width: 640px) {
@@ -637,9 +633,9 @@
     </section>
 
     <div class="wrap">
-      <div class="m-footer-nav">
-        <a id="footPrev" class="fn-card"><span class="fn-label"></span><span class="fn-title"></span></a>
-        <a id="footNext" class="fn-card next"><span class="fn-label"></span><span class="fn-title"></span></a>
+      <div class="m-sectors">
+        <div class="m-section-label">Setores que mais aproveitam</div>
+        <div class="sector-tags" id="sectorTags"></div>
       </div>
     </div>
   </div>
@@ -879,7 +875,7 @@ const AGENTS = [
     name: "Pipo",
     tagline: "Pessoas & Conhecimento",
     img: "imgs/Pipo.png",
-    accent: "#5b86ef",
+    accent: "#ff9230",
     modules: [
       {
         id: "base-onboarding",
@@ -966,6 +962,25 @@ const AGENTS = [
     ],
   },
 ];
+
+/* ================================================================
+   SETORES por módulo — para editar, ajuste as listas abaixo.
+   ================================================================ */
+const SECTORS = {
+  "analise-concorrentes": ["Confeitarias", "Restaurantes", "Varejo local", "Salões de beleza", "Moda", "Academias"],
+  "geracao-blog-aeo": ["Clínicas", "Advogados", "Restaurantes", "Serviços locais", "Comércio", "Profissionais liberais"],
+  "midia-paga": ["Restaurantes", "E-commerce", "Comércio local", "Clínicas", "Academias", "Serviços"],
+  "campanhas": ["Confeitarias", "Restaurantes", "Varejo local", "Salões de beleza", "Moda", "Pet shops"],
+  "automacao-comentarios": ["Food", "Varejo", "Infoprodutos", "Moda", "E-commerce", "Serviços"],
+  "disparo-whatsapp": ["Delivery", "Confeitarias", "Restaurantes", "Varejo local", "Salões de beleza", "Academias"],
+  "proposta-comercial": ["Agências", "Advogados", "Consultorias", "Serviços B2B", "Imobiliárias", "Prestadores de serviço"],
+  "atendimento-automatico": ["Restaurantes", "Clínicas", "E-commerce", "Salões de beleza", "Varejo", "Serviços"],
+  "fluxo-caixa": ["Restaurantes", "Comércio", "Serviços", "Autônomos", "Salões de beleza", "Oficinas"],
+  "base-onboarding": ["Restaurantes", "Confeitarias", "Salões de beleza", "Clínicas", "Lojas", "Franquias"],
+  "recrutamento": ["Restaurantes", "Varejo", "Food service", "Clínicas", "Operações", "Franquias"],
+  "escala": ["Restaurantes", "Delivery", "Varejo", "Clínicas & Hospitais", "Hotelaria", "Supermercados"],
+  "gestor-contratos": ["Advogados", "Clínicas", "Restaurantes", "Lojas", "Agências", "Imobiliárias", "Prestadores de serviço"],
+};
 
 /* ================================================================
    RENDER
@@ -1084,15 +1099,17 @@ function renderModule(id) {
     noteEl.style.display = "none";
   }
 
-  // prev / next (circular)
+  // setores que mais aproveitam
+  const sectors = SECTORS[m.id] || [];
+  document.getElementById("sectorTags").innerHTML =
+    sectors.map(s => '<span class="sector-tag">' + s + '</span>').join("");
+
+  // prev / next (circular) — no navbar do topo
   const many = FLAT.length > 1;
   const prev = FLAT[(i - 1 + FLAT.length) % FLAT.length];
   const next = FLAT[(i + 1) % FLAT.length];
-
   setNav("navPrev", prev, many);
   setNav("navNext", next, many);
-  setFoot("footPrev", prev, many);
-  setFoot("footNext", next, many);
 
   document.body.classList.add("view-module");
   window.scrollTo(0, 0);
@@ -1106,21 +1123,11 @@ function setNav(elId, target, show) {
   el.title = target.title;
 }
 
-function setFoot(elId, target, show) {
-  const el = document.getElementById(elId);
-  if (!show) { el.classList.add("empty"); el.removeAttribute("href"); return; }
-  el.classList.remove("empty");
-  el.href = "#/m/" + target.id;
-  el.querySelector(".fn-title").textContent = target.title;
-}
-
 // Preenche os ícones dos elementos estáticos (uma vez)
 function fillStaticIcons() {
   document.getElementById("btnHome").innerHTML = icon("home");
   document.getElementById("navPrev").innerHTML = icon("chevron-left") + '<span class="label">Anterior</span>';
   document.getElementById("navNext").innerHTML = '<span class="label">Próximo</span>' + icon("chevron-right");
-  document.querySelector("#footPrev .fn-label").innerHTML = icon("chevron-left") + "Anterior";
-  document.querySelector("#footNext .fn-label").innerHTML = "Próximo" + icon("chevron-right");
 }
 
 // ---- ROTEAMENTO ----
