@@ -1328,6 +1328,11 @@ function updateActiveAgent() {
     const el = document.getElementById("agent-" + a.id);
     if (el && el.offsetTop <= y) currentId = a.id;
   });
+  // Se chegou ao fim da página, ativa o último agente (que pode nunca
+  // cruzar a linha de detecção por estar muito perto do rodapé).
+  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+    if (AGENTS.length) currentId = AGENTS[AGENTS.length - 1].id;
+  }
   document.querySelectorAll(".agent-nav a").forEach(function (link) {
     link.classList.toggle("active", link.dataset.agent === currentId);
   });
